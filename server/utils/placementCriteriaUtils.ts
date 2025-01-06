@@ -77,11 +77,32 @@ export const apTypeCriteriaLabels: Record<ApTypeCriteria, string> = {
   normal: 'Standard AP',
   ...specialistApTypeCriteriaLabels,
 }
-export const offenceAndRiskCriteriaLabels = filterByType<OffenceAndRiskCriteria>(
-  offenceAndRiskCriteria,
-  placementCriteriaLabels,
-)
-export const placementRequirementCriteriaLabels = filterByType<PlacementRequirementCriteria>(
-  placementRequirementCriteria,
-  placementCriteriaLabels,
-)
+
+type CriteriaLabelMap = Partial<Record<PlacementCriteria, string>>
+
+const apLevelSearchCriteria: CriteriaLabelMap = {
+  acceptsSexOffenders: 'Sexual offences against adults',
+  acceptsChildSexOffenders: undefined,
+  acceptsNonSexualChildOffenders: undefined,
+  isSuitableForVulnerable: 'Vulnerable to exploitation (removes ESAP APs)',
+  isCatered: 'Catered',
+}
+
+const roomLevelSearchCriteria: CriteriaLabelMap = {
+  isWheelchairDesignated: 'Wheelchair',
+  isStepFreeDesignated: 'Step-free',
+  hasEnSuite: 'En-suite',
+  isSingle: undefined,
+  isArsonDesignated: 'Arson room',
+  isSuitedForSexOffenders: 'Suitable for sexual offences',
+}
+
+const filterByTypeOrder = (mapping: CriteriaLabelMap, defaultLabels: CriteriaLabelMap): CriteriaLabelMap =>
+  Object.entries(mapping).reduce(
+    (criteria, [key, value]) => ({ ...criteria, [key]: value || defaultLabels[key] }),
+    {} as CriteriaLabelMap,
+  )
+
+export const spaceSearchCriteriaApLevelLabels = filterByTypeOrder(apLevelSearchCriteria, placementCriteriaLabels)
+
+export const spaceSearchCriteriaRoomLevelLabels = filterByTypeOrder(roomLevelSearchCriteria, placementCriteriaLabels)

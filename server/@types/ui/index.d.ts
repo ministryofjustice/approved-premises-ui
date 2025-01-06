@@ -13,7 +13,6 @@ import {
   Cas1PremisesBasicSummary,
   Document,
   FlagsEnvelope,
-  Gender,
   Mappa,
   OASysSection,
   PersonAcctAlert,
@@ -111,7 +110,7 @@ export type TableCell =
 
 export type TableRow = Array<TableCell>
 
-export interface RadioItem {
+export type RadioItem = {
   text: string
   value: string
   checked?: boolean
@@ -131,9 +130,9 @@ export type CheckBoxItem =
       }
       behaviour?: 'exclusive'
     }
-  | CheckBoxDivider
+  | Divider
 
-export type CheckBoxDivider = { divider: string }
+export type Divider = { divider: string }
 
 export interface SelectOption {
   text: string
@@ -385,7 +384,6 @@ export interface SpaceSearchParametersUi {
   durationInDays: string
   requirements: {
     apType: ApType
-    gender: Gender
     spaceCharacteristics: Array<SpaceCharacteristic>
   }
 }

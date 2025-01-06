@@ -1,12 +1,17 @@
 import { Factory } from 'fishery'
 import { faker } from '@faker-js/faker/locale/en_GB'
 
-import type { Cas1SpaceSearchParameters, Cas1SpaceSearchRequirements } from '@approved-premises/api'
+import type {
+  Cas1SpaceCharacteristic,
+  Cas1SpaceSearchParameters,
+  Cas1SpaceSearchRequirements,
+} from '@approved-premises/api'
 import { DateFormats } from '../../utils/dateUtils'
 import { filterOutAPTypes } from '../../utils/match'
 import { placementCriteria } from './placementRequest'
 import postcodeAreas from '../../etc/postcodeAreas.json'
 import { SpaceSearchParametersUi } from '../../@types/ui'
+import { spaceSearchCriteriaRoomLevelLabels } from '../../utils/placementCriteriaUtils'
 
 const spaceBookingRequirements = Factory.define<Cas1SpaceSearchRequirements>(() => {
   return {
@@ -35,8 +40,9 @@ export const spaceSearchParametersUiFactory = Factory.define<SpaceSearchParamete
     durationInDays: faker.number.int({ max: 100, min: 1 }).toString(),
     requirements: {
       apType: faker.helpers.arrayElement(['pipe', 'esap', 'rfap', 'mhapStJosephs', 'mhapElliottHouse']),
-      spaceCharacteristics: faker.helpers.arrayElements(filterOutAPTypes(placementCriteria)),
-      gender: faker.helpers.arrayElement(['male', 'female']),
+      spaceCharacteristics: faker.helpers.arrayElements(
+        Object.keys(spaceSearchCriteriaRoomLevelLabels),
+      ) as Array<Cas1SpaceCharacteristic>,
     },
     ...startDateInputsValues,
   }
