@@ -1,5 +1,6 @@
 import type {
   ApType,
+  Application,
   ApprovedPremisesApplication,
   Cas1SpaceBookingCharacteristic,
   FullPerson,
@@ -7,6 +8,7 @@ import type {
 } from '@approved-premises/api'
 import { when } from 'jest-when'
 import type { SummaryListItem } from '@approved-premises/ui'
+import applyPaths from '../../paths/apply'
 import paths from '../../paths/match'
 import {
   personFactory,
@@ -23,6 +25,7 @@ import {
   apManagerDetailsRow,
   apTypeLabelsForRadioInput,
   apTypeRow,
+  apTypeWithViewTimelineActionRow,
   arrivalDateRow,
   calculateDepartureDate,
   characteristicsRow,
@@ -49,10 +52,11 @@ import {
   placementLength,
   placementLengthRow,
   placementRequestSummaryListForMatching,
-  postcodeRow,
+  preferredPostcodeRow,
   premisesNameRow,
   redirectToSpaceBookingsNew,
   releaseTypeRow,
+  requestedOrEstimatedArrivalDateRow,
   requirementsHtmlString,
   spaceBookingPersonNeedsSummaryCardRows,
   spaceBookingPremisesSummaryCardRows,
@@ -71,6 +75,7 @@ import { textValue } from '../applications/helpers'
 import { preferredApsRow } from '../placementRequests/preferredApsRow'
 import { placementRequirementsRow } from '../placementRequests/placementRequirementsRow'
 import applicationFactory from '../../testutils/factories/application'
+import offlineApplicationFactory from '../../testutils/factories/offlineApplication'
 
 jest.mock('../retrieveQuestionResponseFromFormArtifact')
 
@@ -108,6 +113,78 @@ describe('matchUtils', () => {
         distanceRow(spaceSearchResult, postcodeArea),
         characteristicsRow(spaceSearchResult),
       ])
+    })
+  })
+
+  describe('requestedOrEstimatedArrivalDateRow', () => {
+    it('should return Estimated arrival date with date when is parole', () => {
+      const arrivalDate = '2024-01-28'
+      expect(requestedOrEstimatedArrivalDateRow(true, arrivalDate)).toEqual({
+        key: { text: 'Estimated arrival date' },
+        value: { text: 'Sun 28 Jan 2024' },
+      })
+    })
+
+    it('should return Requested arrival date with date when is not parole', () => {
+      const arrivalDate = '2024-01-28'
+      expect(requestedOrEstimatedArrivalDateRow(false, arrivalDate)).toEqual({
+        key: { text: 'Requested arrival date' },
+        value: { text: 'Sun 28 Jan 2024' },
+      })
+    })
+  })
+
+  describe('apTypeRow', () => {
+    it.each(Object.keys(apTypeLabels) as Array<ApType>)(
+      'should return the correct type for AP Type %s',
+      (apType: ApType) => {
+        const placementRequestWithApType = placementRequestDetailFactory.build({
+          type: apType,
+        })
+
+        expect(apTypeWithViewTimelineActionRow(placementRequestWithApType)).toEqual({
+          key: {
+            text: 'Type of AP',
+          },
+          value: {
+            text: apTypeLabels[apType],
+          },
+          actions: {
+            items: [
+              {
+                href: `${applyPaths.applications.show({ id: placementRequestWithApType.application.id })}?tab=timeline`,
+                text: 'View timeline',
+              },
+            ],
+          },
+        })
+      },
+    )
+
+    it('should return the correct type for AP Type normal without actions when placement-request has no application', () => {
+      const apType: ApType = 'normal'
+      const placementRequestWithApType = placementRequestDetailFactory.build({
+        type: apType,
+        application: undefined,
+      })
+      expect(apTypeWithViewTimelineActionRow(placementRequestWithApType)).toEqual({
+        key: {
+          text: 'Type of AP',
+        },
+        value: {
+          text: apTypeLabels[apType],
+        },
+      })
+    })
+  })
+
+  describe('preferredPostcodeRow', () => {
+    it('returns preferred postcode', () => {
+      const postcode = 'B71'
+      expect(preferredPostcodeRow(postcode)).toEqual({
+        key: { text: 'Preferred postcode' },
+        value: { text: postcode },
+      })
     })
   })
 
@@ -417,7 +494,7 @@ describe('matchUtils', () => {
         departureDateRow(dates.endDate),
         placementLengthRow(dates.placementLength),
         releaseTypeRow(placementRequest),
-        licenceExpiryDateRow(placementRequest.application as ApprovedPremisesApplication),
+        licenceExpiryDateRow(placementRequest),
         totalCapacityRow(totalCapacity),
         apManagerDetailsRow(managerDetails),
         spaceRequirementsRow(filterOutAPTypes(placementRequest.essentialCriteria)),
@@ -428,6 +505,27 @@ describe('matchUtils', () => {
       expect(occupancyViewSummaryListForMatchingDetails(totalCapacity, placementRequest, managerDetails)).toEqual(
         expectedMatchingDetailsSummaryListItems(application.licenceExpiryDate),
       )
+    })
+
+    it(`should generate the expected matching details when placement-request's application is undefined`, () => {
+      const undefinedApplication: Application = undefined
+      const placementRequestWithoutLicenceExpiry = {
+        ...placementRequest,
+        application: undefinedApplication,
+      }
+      expect(
+        occupancyViewSummaryListForMatchingDetails(totalCapacity, placementRequestWithoutLicenceExpiry, managerDetails),
+      ).toEqual(expectedMatchingDetailsSummaryListItems(''))
+    })
+
+    it(`should generate the expected matching details when placement-request's application is not of type ApprovedPremisesApplication`, () => {
+      const placementRequestWithoutLicenceExpiry = {
+        ...placementRequest,
+        application: offlineApplicationFactory.build(),
+      }
+      expect(
+        occupancyViewSummaryListForMatchingDetails(totalCapacity, placementRequestWithoutLicenceExpiry, managerDetails),
+      ).toEqual(expectedMatchingDetailsSummaryListItems(''))
     })
 
     it(`should generate the expected matching details with blank licence expiry date when application's license-expiry date is not set`, () => {
@@ -625,7 +723,7 @@ describe('matchUtils', () => {
           ),
         ),
         lengthOfStayRow(placementRequest.duration),
-        postcodeRow(placementRequest.location),
+        preferredPostcodeRow(placementRequest.location),
         apTypeRow(placementRequest.type),
         placementRequirementsRow(placementRequest, 'essential'),
         placementRequirementsRow(placementRequest, 'desirable'),

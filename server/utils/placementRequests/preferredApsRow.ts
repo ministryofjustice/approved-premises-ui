@@ -8,7 +8,7 @@ export const preferredApsRow = (placementRequest: PlacementRequestDetail): Summa
   if (premises.length) {
     const apList = premises.map(p => `<li>${p.name}</li>`)
     return {
-      key: { text: 'Preferred APs' },
+      key: { text: 'Preferred AP' },
       value: { html: `<ol class="govuk-list govuk-list--number">${apList.join('')}</ol>` },
     }
   }
