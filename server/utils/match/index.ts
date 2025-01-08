@@ -11,9 +11,10 @@ import type {
   Cas1SpaceSearchParameters as SpaceSearchParameters,
   Cas1SpaceSearchResult as SpaceSearchResult,
 } from '@approved-premises/api'
-import type {
+import {
   KeyDetailsArgs,
   ObjectWithDateParts,
+  RadioItem,
   SpaceSearchParametersUi,
   SummaryListItem,
 } from '@approved-premises/ui'
@@ -21,9 +22,9 @@ import { DateFormats, daysToWeeksAndDays } from '../dateUtils'
 import { createQueryString, sentenceCase } from '../utils'
 import matchPaths from '../../paths/match'
 import {
-  offenceAndRiskCriteriaLabels,
   placementCriteriaLabels,
-  placementRequirementCriteriaLabels,
+  spaceSearchCriteriaApLevelLabels,
+  spaceSearchCriteriaRoomLevelLabels,
 } from '../placementCriteriaUtils'
 import { apTypeLabels } from '../apTypeLabels'
 import { convertKeyValuePairToRadioItems } from '../formUtils'
@@ -56,7 +57,6 @@ export const mapUiParamsForApi = (query: SpaceSearchParametersUi): SpaceSearchPa
     targetPostcodeDistrict: query.targetPostcodeDistrict,
     requirements: {
       apTypes: [query.requirements.apType],
-      genders: [query.requirements.gender],
       spaceCharacteristics: query.requirements.spaceCharacteristics,
     },
     durationInDays: Number(query.durationInDays),
@@ -387,13 +387,13 @@ export const startDateObjFromParams = (params: { startDate: string } | ObjectWit
 
 export const groupedCriteria = {
   offenceAndRisk: {
-    title: 'Risks and offences',
-    items: offenceAndRiskCriteriaLabels,
+    title: 'AP requirements',
+    items: spaceSearchCriteriaApLevelLabels,
     inputName: 'spaceCharacteristics',
   },
   accessNeeds: {
-    title: 'Access needs and additional features',
-    items: placementRequirementCriteriaLabels,
+    title: 'Room requirements',
+    items: spaceSearchCriteriaRoomLevelLabels,
     inputName: 'spaceCharacteristics',
   },
 }
@@ -422,7 +422,11 @@ export const checkBoxesForCriteria = (criteria: Record<string, string>, selected
 }
 
 export const apTypeLabelsForRadioInput = (selectedValue: ApType) => {
-  return convertKeyValuePairToRadioItems(apTypeLabels, selectedValue)
+  const apTypeRadios = convertKeyValuePairToRadioItems(apTypeLabels, selectedValue) as Array<
+    RadioItem | { divider: 'or' }
+  >
+  apTypeRadios.splice(1, 0, { divider: 'or' })
+  return apTypeRadios
 }
 
 export const lengthOfStayRow = (lengthInDays: number) => ({
