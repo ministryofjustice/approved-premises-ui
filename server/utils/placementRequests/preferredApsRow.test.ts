@@ -20,7 +20,7 @@ describe('preferredApsRow', () => {
 
     const row = preferredApsRow(placementRequest) as SummaryListItem
 
-    expect(row.key).toEqual({ text: 'Preferred APs' })
+    expect(row.key).toEqual({ text: 'Preferred AP' })
     expect((row.value as HtmlItem).html).toMatchStringIgnoringWhitespace(`
       <ol class="govuk-list govuk-list--number">
         <li>${premises[0].name}</li>
