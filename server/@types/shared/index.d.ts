@@ -136,6 +136,7 @@ export type { Characteristic } from './models/Characteristic';
 export type { CharacteristicPair } from './models/CharacteristicPair';
 export type { ClarificationNote } from './models/ClarificationNote';
 export type { Confirmation } from './models/Confirmation';
+export type { DashboardPlacementRequest } from './models/DashboardPlacementRequest';
 export type { DateCapacity } from './models/DateCapacity';
 export type { DateChange } from './models/DateChange';
 export type { DatePeriod } from './models/DatePeriod';
