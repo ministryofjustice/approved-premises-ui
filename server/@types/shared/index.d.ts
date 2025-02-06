@@ -96,6 +96,7 @@ export type { Cas1PremiseCapacityForDay } from './models/Cas1PremiseCapacityForD
 export type { Cas1PremiseCharacteristicAvailability } from './models/Cas1PremiseCharacteristicAvailability';
 export type { Cas1Premises } from './models/Cas1Premises';
 export type { Cas1PremisesBasicSummary } from './models/Cas1PremisesBasicSummary';
+export type { Cas1PremisesBedSummary } from './models/Cas1PremisesBedSummary';
 export type { Cas1PremisesDaySummary } from './models/Cas1PremisesDaySummary';
 export type { Cas1PremisesSearchResultSummary } from './models/Cas1PremisesSearchResultSummary';
 export type { Cas1ReportName } from './models/Cas1ReportName';
