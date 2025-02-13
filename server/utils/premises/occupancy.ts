@@ -4,6 +4,7 @@ import {
   Cas1PremisesDaySummary,
   Cas1SpaceBookingDaySummary,
   Cas1SpaceBookingDaySummarySortField,
+  Cas1SpaceCharacteristic,
   SortDirection,
 } from '@approved-premises/api'
 import { SelectOption, TableCell, TableRow } from '@approved-premises/ui'
@@ -79,6 +80,9 @@ export const durationSelectOptions = (durationDays?: string): Array<SelectOption
     selected: value === durationDays || undefined,
   }))
 
+export const criteriaListInline = (criteria: Array<Cas1SpaceCharacteristic>): string =>
+  joinWithCommas(criteria.map(characteristic => occupancyCriteriaMap[characteristic].toLowerCase()))
+
 export const generateDaySummaryText = (daySummary: Cas1PremisesDaySummary): string => {
   const {
     capacity: { characteristicAvailability, availableBedCount, bookingCount },
@@ -90,10 +94,7 @@ export const generateDaySummaryText = (daySummary: Cas1PremisesDaySummary): stri
     .filter(Boolean)
   const messages: Array<string> = []
   if (bookingCount > availableBedCount) messages.push('is overbooked')
-  if (overbookedCriteria.length)
-    messages.push(
-      `is overbooked on: ${joinWithCommas(overbookedCriteria.map(characteristic => occupancyCriteriaMap[characteristic].toLowerCase()))}`,
-    )
+  if (overbookedCriteria.length) messages.push(`is overbooked on: ${criteriaListInline(overbookedCriteria)}`)
   return messages.length ? `This AP ${messages.join(' and ')}.` : ''
 }
 
