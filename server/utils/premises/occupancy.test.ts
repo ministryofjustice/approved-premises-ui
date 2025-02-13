@@ -22,10 +22,10 @@ import {
   tableHeader,
 } from './occupancy'
 import { DateFormats } from '../dateUtils'
-import { occupancyCriteriaMap } from '../match/occupancy'
 import { premiseCharacteristicAvailability } from '../../testutils/factories/cas1PremiseCapacity'
 import { getTierOrBlank } from '../applications/helpers'
 import { laoSummaryName } from '../personUtils'
+import { roomCharacteristicMap } from '../characteristicsUtils'
 
 describe('apOccupancy utils', () => {
   describe('occupancyCalendar', () => {
@@ -76,7 +76,7 @@ describe('apOccupancy utils', () => {
 
   describe('generateDaySummaryText', () => {
     const buildDaySummary = (overbookedCharacteristics: Array<Cas1SpaceBookingCharacteristic>, overbook = false) => {
-      const characteristicAvailability = Object.keys(occupancyCriteriaMap).map(characteristic =>
+      const characteristicAvailability = Object.keys(roomCharacteristicMap).map(characteristic =>
         overbookedCharacteristics.includes(characteristic as Cas1SpaceBookingCharacteristic)
           ? premiseCharacteristicAvailability
               .strictlyOverbooked()
@@ -212,7 +212,7 @@ describe('apOccupancy utils', () => {
       expect(row[2].text).toEqual(DateFormats.isoDateToUIDate(summary.startDate, { format: 'short' }))
       expect(row[3].text).toEqual(DateFormats.isoDateToUIDate(summary.endDate, { format: 'short' }))
       expect(row[4].html).toMatchStringIgnoringWhitespace(`<ul class="govuk-list govuk-list">
-        ${summary.characteristics.map((characteristic: Cas1SpaceBookingCharacteristic) => `<li>${occupancyCriteriaMap[characteristic]}</li>`).join('')}
+        ${summary.characteristics.map((characteristic: Cas1SpaceBookingCharacteristic) => `<li>${roomCharacteristicMap[characteristic]}</li>`).join('')}
       </ul>`)
     }
 
