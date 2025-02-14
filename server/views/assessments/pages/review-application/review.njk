@@ -143,3 +143,10 @@
         },fetchContext()) }}
 
 {% endblock %}
+
+{% block extraScripts %}
+  <script type="text/javascript" src="/assets/js/linkDebounce.js"></script>
+  <script type="text/javascript" nonce="{{ cspNonce }}">
+    linkDebounce()
+  </script>
+{% endblock %}
