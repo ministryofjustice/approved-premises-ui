@@ -24,8 +24,8 @@ import { placementDates } from '../../../utils/match'
 import { fetchErrorsAndUserInput, generateErrorMessages, generateErrorSummary } from '../../../utils/validation'
 import { getPaginationDetails } from '../../../utils/getPaginationDetails'
 import { convertKeyValuePairToCheckBoxItems } from '../../../utils/formUtils'
-import { occupancyCriteriaMap } from '../../../utils/match/occupancy'
 import { createQueryString, makeArrayOfType } from '../../../utils/utils'
+import { roomCharacteristicMap } from '../../../utils/characteristicsUtils'
 
 export default class ApOccupancyViewController {
   constructor(private readonly premisesService: PremisesService) {}
@@ -122,7 +122,7 @@ export default class ApOccupancyViewController {
         placementTableRows: placementTableRows(premisesId, daySummary.spaceBookings),
         outOfServiceBedTableHeader: tableHeader<OutOfServiceBedColumnField>(outOfServiceBedColumnMap),
         outOfServiceBedTableRows: outOfServiceBedTableRows(premisesId, daySummary.outOfServiceBeds),
-        criteriaOptions: convertKeyValuePairToCheckBoxItems(occupancyCriteriaMap, characteristicsArray),
+        criteriaOptions: convertKeyValuePairToCheckBoxItems(roomCharacteristicMap, characteristicsArray),
       })
     }
   }

@@ -4,9 +4,9 @@ import {
   dayAvailabilityCount,
   dayAvailabilityStatus,
   dayAvailabilityStatusMap,
-  occupancyCriteriaMap,
 } from '../../../server/utils/match/occupancy'
 import { DateFormats } from '../../../server/utils/dateUtils'
+import { roomCharacteristicMap } from '../../../server/utils/characteristicsUtils'
 
 type Availability = 'Available' | 'Overbooked' | 'Available for your criteria'
 
@@ -45,7 +45,7 @@ export default class DayAvailabilityPage extends Page {
 
     if (this.criteria.length) {
       this.criteria.forEach(criteria => {
-        const criteriaLabel = occupancyCriteriaMap[criteria]
+        const criteriaLabel = roomCharacteristicMap[criteria]
         const criteriaAvailability = this.dayCapacity.characteristicAvailability.find(
           characteristic => characteristic.characteristic === criteria,
         )

@@ -1,5 +1,6 @@
 import { Cas1PremiseCapacityForDay, Cas1SpaceBookingCharacteristic } from '@approved-premises/api'
 import { SelectOption, SummaryListItem } from '@approved-premises/ui'
+import { roomCharacteristicMap } from '../characteristicsUtils'
 
 export const dayAvailabilityCount = (
   dayCapacity: Cas1PremiseCapacityForDay,
@@ -60,7 +61,7 @@ export const dayAvailabilitySummaryListItems = (
       )
 
       rows.push({
-        key: { text: `${occupancyCriteriaMap[criterion]} spaces available` },
+        key: { text: `${roomCharacteristicMap[criterion]} spaces available` },
         value: { text: `${dayCharacteristic.availableBedsCount - dayCharacteristic.bookingsCount}` },
       })
     })
@@ -91,13 +92,4 @@ export const durationSelectOptions = (duration?: number): Array<SelectOption> =>
     text: label,
     selected: selected === value || undefined,
   }))
-}
-
-export const occupancyCriteriaMap: Record<Cas1SpaceBookingCharacteristic, string> = {
-  isWheelchairDesignated: 'Wheelchair accessible',
-  isStepFreeDesignated: 'Step-free',
-  hasEnSuite: 'En-suite',
-  isSingle: 'Single room',
-  isArsonSuitable: 'Suitable for active arson risk',
-  isSuitedForSexOffenders: 'Suitable for sexual offence risk',
 }
