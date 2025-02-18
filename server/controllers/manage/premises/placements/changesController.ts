@@ -21,7 +21,7 @@ import { createQueryString, makeArrayOfType } from '../../../../utils/utils'
 import { DateFormats, dateAndTimeInputsAreValidDates } from '../../../../utils/dateUtils'
 import { CriteriaQuery } from '../../../match/placementRequests/occupancyViewController'
 import { convertKeyValuePairToCheckBoxItems } from '../../../../utils/formUtils'
-import { durationSelectOptions, occupancyCriteriaMap } from '../../../../utils/match/occupancy'
+import { durationSelectOptions, getClosestDuration, occupancyCriteriaMap } from '../../../../utils/match/occupancy'
 import { OccupancySummary } from '../../../../utils/match/occupancySummary'
 import managePaths from '../../../../paths/manage'
 import matchPaths from '../../../../paths/match'
@@ -42,6 +42,7 @@ interface ViewRequest extends Request {
   body: ObjectWithDateParts<'arrivalDate'> &
     ObjectWithDateParts<'departureDate'> & {
       criteria: string
+      actualArrivalDate: string
     }
 }
 
@@ -79,13 +80,19 @@ export default class ChangesController {
       const { errors, errorSummary, userInput } = fetchErrorsAndUserInput(req)
 
       const placement = await this.placementService.getPlacement(token, placementId)
-
+      let mode: 'amendment' | 'extension' = 'amendment'
       let startDate = placement.expectedArrivalDate
       let endDate = placement.expectedDepartureDate
       let durationDays = differenceInDays(endDate, startDate)
-      let criteria: Array<Cas1SpaceBookingCharacteristic> = filterRoomLevelCriteria(
-        placement.requirements.essentialCharacteristics,
-      )
+
+      if (placement.actualArrivalDateOnly) {
+        startDate = placement.actualArrivalDateOnly
+        endDate = DateFormats.dateObjToIsoDate(addDays(startDate, getClosestDuration(durationDays)))
+        durationDays = differenceInDays(endDate, startDate)
+        mode = 'extension'
+      }
+
+      let criteria: Array<Cas1SpaceBookingCharacteristic> = filterRoomLevelCriteria(placement.characteristics)
 
       if (queryDurationDays) {
         durationDays = Number(queryDurationDays)
@@ -130,11 +137,11 @@ export default class ChangesController {
 
       return res.render('manage/premises/placements/changes/new', {
         backlink: adminPaths.admin.placementRequests.show({ id: placement.requestForPlacementId }),
-        pageHeading: 'Change placement',
+        pageHeading: mode === 'amendment' ? 'Change placement' : 'Extend placement',
         placement,
         selectedCriteria: (criteria || []).map(criterion => occupancyCriteriaMap[criterion]).join(', '),
-        arrivalDateHint: `Expected arrival date: ${DateFormats.isoDateToUIDate(placement.expectedArrivalDate, { format: 'dateFieldHint' })}`,
-        departureDateHint: `Expected departure date: ${DateFormats.isoDateToUIDate(placement.expectedDepartureDate, { format: 'dateFieldHint' })}`,
+        arrivalDateHint: `Current arrival date: ${DateFormats.isoDateToUIDate(placement.expectedArrivalDate, { format: 'dateFieldHint' })}`,
+        departureDateHint: `Current departure date: ${DateFormats.isoDateToUIDate(placement.expectedDepartureDate, { format: 'dateFieldHint' })}`,
         startDate,
         ...DateFormats.isoDateToDateInputs(startDate, 'startDate'),
         durationDays,
@@ -199,7 +206,6 @@ export default class ChangesController {
         this.premisesService.find(token, premisesId),
         this.placementService.getPlacement(token, placementId),
       ])
-
       const backlink = `${managePaths.premises.placements.changes.new(req.params)}${createQueryString(req.query, {
         arrayFormat: 'repeat',
         addQueryPrefix: true,
@@ -211,7 +217,7 @@ export default class ChangesController {
         placement,
         summaryListRows: spaceBookingConfirmationSummaryListRows(
           premises,
-          arrivalDate,
+          arrivalDate || placement.expectedArrivalDate,
           departureDate,
           makeArrayOfType<Cas1SpaceBookingCharacteristic>(criteria) || [],
         ),

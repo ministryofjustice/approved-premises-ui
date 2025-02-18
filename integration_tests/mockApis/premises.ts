@@ -87,22 +87,11 @@ const stubPremisesStaffMembers = (args: { premisesId: string; staffMembers: Arra
     },
   })
 
-const stubPremiseCapacity = (args: {
-  premisesId: string
-  startDate: string
-  endDate: string
-  excludeSpaceBookingId?: string
-  premiseCapacity: Cas1PremiseCapacity
-}) =>
+const stubPremiseCapacity = (args: { premisesId: string; premiseCapacity: Cas1PremiseCapacity }) =>
   stubFor({
     request: {
       method: 'GET',
       urlPath: paths.premises.capacity({ premisesId: args.premisesId }),
-      queryParameters: {
-        startDate: { equalTo: args.startDate },
-        endDate: { equalTo: args.endDate },
-        excludeSpaceBookingId: args.excludeSpaceBookingId ? { equalTo: args.excludeSpaceBookingId } : undefined,
-      },
     },
     response: {
       status: 200,
